@@ -1,7 +1,4 @@
-import io.restassured.internal.common.assertion.Assertion;
-import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
-import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -9,11 +6,11 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 public class OrderListTest {
-    Order order = new Order();
+    OrderStep orders = new OrderStep();
 
     @Test
     public void orderListGetStatuCode() {
-        Assert.assertEquals(200,order.getOrdersList());
+        Assert.assertEquals(200,orders.getOrdersList());
     }
     @Test
     public void checkOrderListOfNotNull() {

@@ -1,3 +1,4 @@
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -13,10 +14,10 @@ public class OrderTrackNumberTest {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {"BLACK"},
                 {"GREY"},
-                {"BLACK_AND_GREY"},
-                {"NO_COLOR"},
+                {"BLACK"},
+                {"NO"},
+                {"ALL"},
         });
     }
 
@@ -26,8 +27,9 @@ public class OrderTrackNumberTest {
     }
     @Test
     public void createOrderAndCheckTrackNumberTest() {
-        Order order = new Order(color);
-        int actual = order.getTrack();
+        OrderStep order = new OrderStep(color);
+        int actual = order.loginCourierCheckMessageId();
         assertNotNull("Проверка  получения трека",actual);
     }
 }
+
