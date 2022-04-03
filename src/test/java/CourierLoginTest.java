@@ -11,45 +11,63 @@ public class CourierLoginTest {
         5-если авторизоваться под несуществующим пользователем, запрос возвращает ошибку;
         6-успешный запрос возвращает id.*/
 Couriers courier = new Couriers();
-/*
+
     @Test
     public void courierLogin () {
-        Assert.assertEquals(200,courier.loginCourier());
-    }
-    @Test
+        courier.courierNewBodyDataGenerate();
+        courier.correctLoginCourier();
+        Assert.assertEquals(200,courier.getResponseStatusCode());
+    }    @Test
     public void courierNoLoginTest () {
-        Assert.assertEquals(400,courier.incorrectLoginCourier(courier.registerCourierCreate("УНИКАЛЬНЫЙ"),"БЕЗ_ЛОГИНА"));
+        courier.courierNewBodyDataGenerate();
+        courier.incorrectLoginCourierNotLogin();
+        Assert.assertEquals(400,courier.getResponseStatusCode());
     }
     @Test
     public void courierNoPasswordTest () {
-        Assert.assertEquals(400,courier.incorrectLoginCourier(courier.registerCourierCreate("УНИКАЛЬНЫЙ"),"БЕЗ_ПАРОЛЯ"));
+        courier.courierNewBodyDataGenerate();
+        courier.incorrectLoginCourierNotPass();
+        Assert.assertEquals(400,courier.getResponseStatusCode());
     }
     @Test
     public void courierIncorrectLoginTest () {
-        Assert.assertEquals(404,courier.incorrectLoginCourier(courier.registerCourierCreate("УНИКАЛЬНЫЙ"),"НЕПРАВИЛЬНЫЙ_ЛОГИН"));
+        courier.courierNewBodyDataGenerate();
+        courier.incorrectLoginCourierWrongLogin();
+        Assert.assertEquals(404,courier.getResponseStatusCode());
     }
     @Test
     public void courierIncorrectPasswordTest () {
-        Assert.assertEquals(404,courier.incorrectLoginCourier(courier.registerCourierCreate("УНИКАЛЬНЫЙ"),"НЕПРАВИЛЬНЫЙ_ПАРОЛЬ"));
-    }
+        courier.courierNewBodyDataGenerate();
+        courier.incorrectLoginCourierWrongPass();
+        Assert.assertEquals(404,courier.getResponseStatusCode());    }
     @Test
     public void courierLoginErrorMessageCheck () {
-        Assert.assertEquals("Учетная запись не найдена",courier.getMessageResponse(courier.registerCourierCreate("УНИКАЛЬНЫЙ"),"НЕПРАВИЛЬНЫЙ_ЛОГИН"));
+        courier.courierNewBodyDataGenerate();
+        courier.incorrectLoginCourierWrongLogin();
+        Assert.assertEquals("Учетная запись не найдена",courier.getMessageResponseOfLoginCourier());
     }
     @Test
     public void courierPasswordErrorMessageCheck () {
-        Assert.assertEquals("Учетная запись не найдена",courier.getMessageResponse(courier.registerCourierCreate("УНИКАЛЬНЫЙ"),"НЕПРАВИЛЬНЫЙ_ПАРОЛЬ"));
+courier.courierNewBodyDataGenerate();
+        courier.incorrectLoginCourierWrongPass();
+        Assert.assertEquals("Учетная запись не найдена",courier.getMessageResponseOfLoginCourier());
     }
     @Test
     public void courierNoLoginErrorMessageCheck () {
-        Assert.assertEquals("Недостаточно данных для входа",courier.getMessageResponse(courier.registerCourierCreate("УНИКАЛЬНЫЙ"),"БЕЗ_ЛОГИНА"));
+        courier.courierNewBodyDataGenerate();
+        courier.incorrectLoginCourierNotLogin();
+        Assert.assertEquals("Недостаточно данных для входа",courier.getMessageResponseOfLoginCourier());
     }
     @Test
     public void courierNoPasswordErrorMessageCheck () {
-        Assert.assertEquals("Недостаточно данных для входа",courier.getMessageResponse(courier.registerCourierCreate("УНИКАЛЬНЫЙ"),"БЕЗ_ПАРОЛЯ"));
+        courier.courierNewBodyDataGenerate();
+        courier.incorrectLoginCourierNotPass();
+        Assert.assertEquals("Недостаточно данных для входа",courier.getMessageResponseOfLoginCourier());
     }
     @Test
     public void courierCorrectLoginMessageCheck () {
-        Assert.assertEquals(45046,courier.loginCourierCheckMessageId());
-    }*/
+        courier.courierNewBodyDataGenerateNotNew();
+        courier.correctLoginCourier();
+        Assert.assertEquals(45046,courier.getIdCourierAfterLogin());
+    }
 }

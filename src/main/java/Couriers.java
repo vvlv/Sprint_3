@@ -34,8 +34,10 @@ public class Couriers {
         String password = RandomStringUtils.randomAlphabetic(10);
         // с помощью библиотеки RandomStringUtils генерируем имя курьера
         String firstName = RandomStringUtils.randomAlphabetic(10);
-        CouriersCreate couriersNew = new CouriersCreate(login,password,firstName);
-        requestBodyGenerate(couriersNew);
+        CouriersCreate couriers = new CouriersCreate(login,password,firstName);
+        loginPass.add(login);
+        loginPass.add(password);
+        requestBodyGenerate(couriers);
     }
     @Step("Генерация не уникальных данных курьера")
     public void courierNewBodyDataGenerateNotNew() {
@@ -43,6 +45,8 @@ public class Couriers {
         String password = courierPassword;
         String firstName = courierName;
         CouriersCreate couriersNew = new CouriersCreate(login,password,firstName);
+        loginPass.add(login);
+        loginPass.add(password);
         requestBodyGenerate(couriersNew);
     }
     @Step("Генерация уникальных данных курьера без логина")
@@ -50,6 +54,7 @@ public class Couriers {
         String password = RandomStringUtils.randomAlphabetic(10);
         String firstName = RandomStringUtils.randomAlphabetic(10);
         CouriersCreate couriersNew = new CouriersCreate(null,password,firstName);
+        loginPass.add(password);
         requestBodyGenerate(couriersNew);
     }
     @Step("Генерация уникальных данных курьера без пароля")
@@ -57,6 +62,7 @@ public class Couriers {
         String login = RandomStringUtils.randomAlphabetic(10);
         String firstName = RandomStringUtils.randomAlphabetic(10);
         CouriersCreate couriersNew = new CouriersCreate(login,null,firstName);
+        loginPass.add(login);
         requestBodyGenerate(couriersNew);
     }
     @Step("Генерация уникальных данных курьера без имени")
@@ -64,6 +70,8 @@ public class Couriers {
         String login = RandomStringUtils.randomAlphabetic(10);
         String password = RandomStringUtils.randomAlphabetic(10);
         CouriersCreate couriersNew = new CouriersCreate(login,password,null);
+        loginPass.add(login);
+        loginPass.add(password);
         requestBodyGenerate(couriersNew);
     }
 
@@ -81,20 +89,6 @@ public void requestBodyGenerate (CouriersCreate couriers) {
 public int getResponseStatusCode () {
 return response.statusCode();
 }
-    @Step("Запись данных курьера в лист")
-    public void getRegisterCouierData () {
-
-        if (getResponseStatusCode() == 201) {
-            loginPass.add(response.as(CouriersCreate.class).getPassword());
-            loginPass.add(response.as(CouriersCreate.class).getLogin());
-            registerCouierStatusCode = response.statusCode();
-
-        } else {registerCouierStatusCode = response.statusCode();
-        }
-    }
-    @Step("получение статус кода после создания нового курьера с уникальными данными")
-    public int getRegisterCouierStatusCode () {return registerCouierStatusCode;}
-
     @Step("Логин курьера")
     public void loginCourier () {
         CouriersLogin login = new CouriersLogin(loginPass.get(0), loginPass.get(1));
@@ -146,6 +140,10 @@ public int courierLoginStatusCheck () {
     @Step("Проверка система вернёт ошибку, если провалится запрос на создание курьера")
     public String getMessageResponseOfCreateCourier () {
         return response.as(CouriersCreate.class).getMessage();
+    }
+    @Step("Проверка система вернёт ошибку, если провалится запрос на создание курьера")
+    public int getIdCourierAfterLogin () {
+        return response.as(CouriersResponse.class).getId();
     }
 
 }
