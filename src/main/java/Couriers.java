@@ -20,9 +20,9 @@ public class Couriers {
     private Response getResponse (){
         return response;
     }
-    private String name = faker.name().firstName();
-    private String password = "123456";
-    private String login = "Ivan1991";
+     String courierName = faker.name().firstName();
+     String courierPassword = "123456";
+     String courierLogin = "Ivan1991";
     private int registerCouierStatusCode;
 
     @Step("Генерация уникальных данных курьера")
@@ -34,6 +34,14 @@ public class Couriers {
         String password = RandomStringUtils.randomAlphabetic(10);
         // с помощью библиотеки RandomStringUtils генерируем имя курьера
         String firstName = RandomStringUtils.randomAlphabetic(10);
+        CouriersCreate couriersNew = new CouriersCreate(login,password,firstName);
+        requestBodyGenerate(couriersNew);
+    }
+    @Step("Генерация не уникальных данных курьера")
+    public void courierNewBodyDataGenerateNotNew() {
+        String login = courierLogin;
+        String password = courierPassword;
+        String firstName = courierName;
         CouriersCreate couriersNew = new CouriersCreate(login,password,firstName);
         requestBodyGenerate(couriersNew);
     }
@@ -70,13 +78,13 @@ public void requestBodyGenerate (CouriersCreate couriers) {
      setResponse(response);
 }
 @Step("Получение статус кода ответа")
-public int getResponseStatusCode (Response response) {
+public int getResponseStatusCode () {
 return response.statusCode();
 }
     @Step("Запись данных курьера в лист")
-    public void getRegisterCouierData (Response response) {
+    public void getRegisterCouierData () {
 
-        if (getResponseStatusCode(response) == 201) {
+        if (getResponseStatusCode() == 201) {
             loginPass.add(response.as(CouriersCreate.class).getPassword());
             loginPass.add(response.as(CouriersCreate.class).getLogin());
             registerCouierStatusCode = response.statusCode();
@@ -134,6 +142,10 @@ public int courierLoginStatusCheck () {
     @Step("Проверка система вернёт ошибку, если неправильно указать логин или пароль, не указано логин или пароль")
     public String getMessageResponseOfLoginCourier () {
         return response.as(CouriersResponse.class).getMessage();
+    }
+    @Step("Проверка система вернёт ошибку, если провалится запрос на создание курьера")
+    public String getMessageResponseOfCreateCourier () {
+        return response.as(CouriersCreate.class).getMessage();
     }
 
 }

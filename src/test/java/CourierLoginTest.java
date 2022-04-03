@@ -11,7 +11,7 @@ public class CourierLoginTest {
         5-если авторизоваться под несуществующим пользователем, запрос возвращает ошибку;
         6-успешный запрос возвращает id.*/
 Couriers courier = new Couriers();
-
+/*
     @Test
     public void courierLogin () {
         Assert.assertEquals(200,courier.loginCourier());
@@ -51,5 +51,5 @@ Couriers courier = new Couriers();
     @Test
     public void courierCorrectLoginMessageCheck () {
         Assert.assertEquals(45046,courier.loginCourierCheckMessageId());
-    }
+    }*/
 }

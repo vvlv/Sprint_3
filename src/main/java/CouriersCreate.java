@@ -1,10 +1,16 @@
 public class CouriersCreate {
 
-
+    private String message;
     private String login;
     private String password;
     private String firstName;
 
+    public String getMessage() {
+        return message;
+    }
+    public void setMessage(String message) {
+        this.message = message;
+    }
     public void setLogin (String login) {
         this.login = login;
     }

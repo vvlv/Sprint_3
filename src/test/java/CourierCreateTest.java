@@ -9,40 +9,29 @@ import org.junit.Test;
 
 
 public class CourierCreateTest {
-/*
-    Создание курьера
-    Проверь:
-            1-курьера можно создать;
-        2-нельзя создать двух одинаковых курьеров;
-        3-чтобы создать курьера, нужно передать в ручку все обязательные поля;
-        4-запрос возвращает правильный код ответа;
-        5-успешный запрос возвращает ok: true;
-        6-если одного из полей нет, запрос возвращает ошибку;
-        7-если создать пользователя с логином, который уже есть, возвращается ошибка.
-*/
+
 Couriers courier = new Couriers();
 
 //В этом тесте проверяется что создается курьер и проверяется ответ
 @Test
     public void courierCreate () {
-    courier.registerCourierCreate("УНИКАЛЬНЫЙ");
-    Assert.assertEquals(201,courier.getRegisterCouierStatusCode());
+    courier.courierNewBodyDataGenerate();
+    Assert.assertEquals(201,courier.getResponseStatusCode());
 }
 @Test
     public void courierCreateNotNew () {
-    courier.registerCourierCreate("СУЩЕСТВУЮЩИЙ"); //Создается уникальный курьер
-    courier.registerCourierCreate("СУЩЕСТВУЮЩИЙ"); //Создается курьер с данными с предыдущего шага
-    Assert.assertEquals(409,courier.getRegisterCouierStatusCode());
+    courier.courierNewBodyDataGenerateNotNew();
+    Assert.assertEquals(409,courier.getResponseStatusCode());
 }
     @Test
     public void courierCreateNoLogin () {
-        courier.registerCourierCreate("ЗАПРОС_БЕЗ_ЛОГИНА");
-        Assert.assertEquals(400,courier.getRegisterCouierStatusCode());
+        courier.courierNewBodyDataGenerateNotLogin();
+        Assert.assertEquals(400,courier.getResponseStatusCode());
     }
     @Test
     public void courierCreateNoPassword() {
-        courier.registerCourierCreate("ЗАПРОС_БЕЗ_ПАРОЛЯ");
-        Assert.assertEquals(400,courier.getRegisterCouierStatusCode());
+        courier.courierNewBodyDataGenerateNotPass();
+        Assert.assertEquals(400,courier.getResponseStatusCode());
     }
 
     //Тут возвращается 201 хотя по логике имя дожно быть обязательны и обратного не указано в документации
@@ -50,15 +39,14 @@ Couriers courier = new Couriers();
     @Test
     @Description("Метод создает курьера без имени в запросе")
     public void courierCreateNoName () {
-        courier.registerCourierCreate("ЗАПРОС_БЕЗ_ИМЕНИ");
-        Assert.assertEquals(400,courier.getRegisterCouierStatusCode());
+        courier.courierNewBodyDataGenerateNotName();
+        Assert.assertEquals(400,courier.getResponseStatusCode());
     }
     @Test
     public void courierCreateNotNewLogin () {
-        courier.registerCourierCreate("ЛОГИН_СУЩЕСТВУЕТ");
-        Assert.assertEquals(409,courier.getRegisterCouierStatusCode());
+        courier.courierNewBodyDataGenerateNotNew();
+        Assert.assertEquals("Этот логин уже используется. Попробуйте другой.",courier.getMessageResponseOfCreateCourier());
     }
-
     }
 
 
