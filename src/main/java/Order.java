@@ -1,15 +1,18 @@
+import com.github.javafaker.Faker;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
+
+import java.util.Locale;
 
 import static io.restassured.RestAssured.given;
 
 public class Order {
-
-    private String firstName = "Naruto";
-    private String lastName = "Uchiha";
-    private String address = "Konoha, 142 apt.";
+    Faker faker = new Faker(new Locale("ru"));
+    private String firstName = faker.name().firstName();
+    private String lastName = faker.name().lastName();
+    private String address = faker.address().streetAddress();
     private int metroStation = 4;
-    private String phone = "+7 800 355 35 35";
+    private String phone = faker.phoneNumber().phoneNumber();
     private int rentTime = 5;
     private String deliveryDate = "2020-06-06";
     private String comment = "Saske, come back to Konoha";

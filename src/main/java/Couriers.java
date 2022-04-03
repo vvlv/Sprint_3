@@ -1,227 +1,139 @@
 // импортируем RestAssured
 // импортируем Response
+import com.github.javafaker.Faker;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 // импортируем библиотеку генерации строк
 import org.apache.commons.lang3.RandomStringUtils;
 // импортируем список
 import java.util.ArrayList;
+import java.util.Locale;
 // дополнительный статический импорт нужен, чтобы использовать given(), get() и then()
 import static io.restassured.RestAssured.*;
 public class Couriers {
-    private String name = "Иван";
+    Faker faker = new Faker(new Locale("ru"));
+    private Response response;
+    ArrayList<String> loginPass = new ArrayList<>();
+    private void setResponse (Response response){
+        this.response = response;
+    }
+    private Response getResponse (){
+        return response;
+    }
+    private String name = faker.name().firstName();
     private String password = "123456";
     private String login = "Ivan1991";
     private int registerCouierStatusCode;
-    /*
-метод регистрации нового курьера
-возвращает список из логина и пароля
-если регистрация не удалась, возвращает пустой список
-*/
-    @Step("Регистрация нового курьера с уникальными данными")
-    public ArrayList<String> registerCourierCreate(String requestType){
-        String courierLogin = "";
+
+    @Step("Генерация уникальных данных курьера")
+    public void courierNewBodyDataGenerate() {
+        // с помощью библиотеки RandomStringUtils генерируем логин
+        // метод randomAlphabetic генерирует строку, состоящую только из букв, в качестве параметра передаём длину строки
+        String login = RandomStringUtils.randomAlphabetic(10);
         // с помощью библиотеки RandomStringUtils генерируем пароль
-        String courierPassword = "";
+        String password = RandomStringUtils.randomAlphabetic(10);
         // с помощью библиотеки RandomStringUtils генерируем имя курьера
-        String courierFirstName = "";
-        switch (requestType) {
-            case "УНИКАЛЬНЫЙ":
-            // с помощью библиотеки RandomStringUtils генерируем логин
-            // метод randomAlphabetic генерирует строку, состоящую только из букв, в качестве параметра передаём длину строки
-            courierLogin = RandomStringUtils.randomAlphabetic(10);
-            // с помощью библиотеки RandomStringUtils генерируем пароль
-            courierPassword = RandomStringUtils.randomAlphabetic(10);
-            // с помощью библиотеки RandomStringUtils генерируем имя курьера
-            courierFirstName = RandomStringUtils.randomAlphabetic(10);
-            break;
-            case "СУЩЕСТВУЮЩИЙ":
-                courierLogin = login;
-                courierPassword = password;
-                courierFirstName = name;
-                break;
-            case "ЗАПРОС_БЕЗ_ЛОГИНА":
-                courierPassword = RandomStringUtils.randomAlphabetic(10);
-                courierFirstName = RandomStringUtils.randomAlphabetic(10);
-                break;
-            case "ЗАПРОС_БЕЗ_ПАРОЛЯ":
-                courierLogin = RandomStringUtils.randomAlphabetic(10);
-                courierFirstName = RandomStringUtils.randomAlphabetic(10);
-                break;
-            case "ЗАПРОС_БЕЗ_ИМЕНИ":
-                courierLogin = RandomStringUtils.randomAlphabetic(10);
-                courierPassword = RandomStringUtils.randomAlphabetic(10);
-                break;
-            case "ЛОГИН_СУЩЕСТВУЕТ":
-                courierLogin = login;
-                courierPassword = RandomStringUtils.randomAlphabetic(10);
-                courierFirstName = RandomStringUtils.randomAlphabetic(10);
-                break;
-        }
-        // создаём список, чтобы метод мог его вернуть
-        ArrayList<String> loginPass = new ArrayList<>();
+        String firstName = RandomStringUtils.randomAlphabetic(10);
+        CouriersCreate couriersNew = new CouriersCreate(login,password,firstName);
+        requestBodyGenerate(couriersNew);
+    }
+    @Step("Генерация уникальных данных курьера без логина")
+    public void courierNewBodyDataGenerateNotLogin() {
+        String password = RandomStringUtils.randomAlphabetic(10);
+        String firstName = RandomStringUtils.randomAlphabetic(10);
+        CouriersCreate couriersNew = new CouriersCreate(null,password,firstName);
+        requestBodyGenerate(couriersNew);
+    }
+    @Step("Генерация уникальных данных курьера без пароля")
+    public void courierNewBodyDataGenerateNotPass() {
+        String login = RandomStringUtils.randomAlphabetic(10);
+        String firstName = RandomStringUtils.randomAlphabetic(10);
+        CouriersCreate couriersNew = new CouriersCreate(login,null,firstName);
+        requestBodyGenerate(couriersNew);
+    }
+    @Step("Генерация уникальных данных курьера без имени")
+    public void courierNewBodyDataGenerateNotName() {
+        String login = RandomStringUtils.randomAlphabetic(10);
+        String password = RandomStringUtils.randomAlphabetic(10);
+        CouriersCreate couriersNew = new CouriersCreate(login,password,null);
+        requestBodyGenerate(couriersNew);
+    }
 
-        // собираем в строку тело запроса на регистрацию, подставляя в него логин, пароль и имя курьера
-        String registerRequestBody = "{\"login\":\"" + courierLogin + "\","
-                + "\"password\":\"" + courierPassword + "\","
-                + "\"firstName\":\"" + courierFirstName + "\"}";
+@Step("Генерация тела запроса для создания курьера")
+public void requestBodyGenerate (CouriersCreate couriers) {
+     Response response =  given()
+            .header("Content-type", "application/json")
+            .and()
+            .body(couriers)
+            .when()
+            .post("https://qa-scooter.praktikum-services.ru/api/v1/courier");
+     setResponse(response);
+}
+@Step("Получение статус кода ответа")
+public int getResponseStatusCode (Response response) {
+return response.statusCode();
+}
+    @Step("Запись данных курьера в лист")
+    public void getRegisterCouierData (Response response) {
 
-        // отправляем запрос на регистрацию курьера и сохраняем ответ в переменную response класса Response
-        Response response =  given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(registerRequestBody)
-                .when()
-                .post("https://qa-scooter.praktikum-services.ru/api/v1/courier");
-
-        // если регистрация прошла успешно (код ответа 201), добавляем в список логин и пароль курьера
-        if (response.statusCode() == 201) {
-            loginPass.add(courierLogin);
-            loginPass.add(courierPassword);
+        if (getResponseStatusCode(response) == 201) {
+            loginPass.add(response.as(CouriersCreate.class).getPassword());
+            loginPass.add(response.as(CouriersCreate.class).getLogin());
             registerCouierStatusCode = response.statusCode();
 
         } else {registerCouierStatusCode = response.statusCode();
-            }
-
-        // возвращаем список
-        return loginPass;
-
-
+        }
     }
     @Step("получение статус кода после создания нового курьера с уникальными данными")
     public int getRegisterCouierStatusCode () {return registerCouierStatusCode;}
 
-    @Step("Проверка логина курьера")
-    public int loginCourier () {
-        ArrayList<String> loginData = registerCourierCreate("УНИКАЛЬНЫЙ");
-
-        String registerRequestBody =
-                "{" +
-                "\"login\":\"" + loginData.get(0) + "\","
-                +
-                "\"password\":\"" + loginData.get(1) + "\"}";
-
+    @Step("Логин курьера")
+    public void loginCourier () {
+        CouriersLogin login = new CouriersLogin(loginPass.get(0), loginPass.get(1));
         Response response =  given()
                 .header("Content-type", "application/json")
                 .and()
-                .body(registerRequestBody)
+                .body(login)
                 .when()
                 .post("https://qa-scooter.praktikum-services.ru/api/v1/courier/login");
-
-        return response.statusCode();
+        setResponse(response);
     }
-    @Step("Проверка логина курьера при нехватке данных для логина")
-    public int incorrectLoginCourier (ArrayList loginPass, String typeOfTest) {
-        String registerRequestBody = "";
-        switch (typeOfTest) {
-            case "БЕЗ_ЛОГИНА" :
-             registerRequestBody =
-                    "{" +
-                            "\"login\":\"" + "" + "\","
-                            +
-                            "\"password\":\"" + loginPass.get(1) + "\"}";
-            break;
-            case "БЕЗ_ПАРОЛЯ" :
-                 registerRequestBody =
-                        "{" +
-                                "\"login\":\"" + loginPass.get(0) + "\","
-                                +
-                                "\"password\":\"" + "" + "\"}";
-                break;
-            case "НЕПРАВИЛЬНЫЙ_ЛОГИН" :
-                registerRequestBody =
-                        "{" +
-                                "\"login\":\"" + RandomStringUtils.randomAlphabetic(10) + "\","
-                                +
-                                "\"password\":\"" + loginPass.get(1) + "\"}";
-                break;
-            case "НЕПРАВИЛЬНЫЙ_ПАРОЛЬ" :
-                registerRequestBody =
-                        "{" +
-                                "\"login\":\"" + loginPass.get(0) + "\","
-                                +
-                                "\"password\":\"" + RandomStringUtils.randomAlphabetic(10) + "\"}";
-                break;
-        }
-        Response response =  given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(registerRequestBody)
-                .when()
-                .post("https://qa-scooter.praktikum-services.ru/api/v1/courier/login");
-        System.out.println(response.statusLine());
-        return response.statusCode();
-
+@Step("Проверка статуса логина курьера")
+public int courierLoginStatusCheck () {
+    return  response.statusCode();
+}
+    @Step("Проверка статуса Создания курьера")
+    public int courierCreateStatusCheck () {
+        return  response.statusCode();
     }
-    @Step("система вернёт ошибку, если неправильно указать логин или пароль, не указано логин или пароль")
-    public String getMessageResponse (ArrayList loginPass, String typeOfTest) {
-        String registerRequestBody = "";
-        switch (typeOfTest) {
-            case "БЕЗ_ЛОГИНА" :
-                registerRequestBody =
-                        "{" +
-                                "\"login\":\"" + "" + "\","
-                                +
-                                "\"password\":\"" + loginPass.get(1) + "\"}";
-                break;
-            case "БЕЗ_ПАРОЛЯ" :
-                registerRequestBody =
-                        "{" +
-                                "\"login\":\"" + loginPass.get(0) + "\","
-                                +
-                                "\"password\":\"" + "" + "\"}";
-                break;
-            case "НЕПРАВИЛЬНЫЙ_ЛОГИН" :
-                registerRequestBody =
-                        "{" +
-                                "\"login\":\"" + RandomStringUtils.randomAlphabetic(10) + "\","
-                                +
-                                "\"password\":\"" + loginPass.get(1) + "\"}";
-                break;
-            case "НЕПРАВИЛЬНЫЙ_ПАРОЛЬ" :
-                registerRequestBody =
-                        "{" +
-                                "\"login\":\"" + loginPass.get(0) + "\","
-                                +
-                                "\"password\":\"" + RandomStringUtils.randomAlphabetic(10) + "\"}";
-                break;
-            case "КОРРЕКТНЫЙ" :
-                registerRequestBody =
-                        "{" +
-                                "\"login\":\"" + loginPass.get(0) + "\","
-                                +
-                                "\"password\":\"" + loginPass.get(1) + "\"}";
-                break;
-        }
-        CouriersResponse response =  given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(registerRequestBody)
-                .when()
-                .post("https://qa-scooter.praktikum-services.ru/api/v1/courier/login")
-        .as(CouriersResponse.class);
-
-return response.getMessage();
+    @Step("Проверка логина курьера при нехватке поля логин")
+    public void incorrectLoginCourierNotLogin () {
+        loginPass.set(0,"");
+        loginCourier();
     }
-    @Step("Проверка логина курьера")
-    public int loginCourierCheckMessageId () {
+    @Step("Проверка логина курьера при нехватке поля пароль")
+    public void incorrectLoginCourierNotPass () {
+        loginPass.set(1,"");
+        loginCourier();
+    }
+    @Step("Проверка логина курьера при неправильном значении поля логин")
+    public void incorrectLoginCourierWrongLogin () {
+        loginPass.set(0,RandomStringUtils.randomAlphabetic(10));
+        loginCourier();
+    }
+    @Step("Проверка логина курьера при неправильном значении поля Пароль")
+    public void incorrectLoginCourierWrongPass () {
+        loginPass.set(1,RandomStringUtils.randomAlphabetic(10));
+        loginCourier();
+    }
+    @Step("Проверка логина курьера при правильных данных")
+    public void correctLoginCourier () {
+        loginCourier();
+    }
 
-
-        String registerRequestBody =
-                "{" +
-                        "\"login\":\"" + login + "\","
-                        +
-                        "\"password\":\"" + password + "\"}";
-
-        CouriersResponse response =  given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(registerRequestBody)
-                .when()
-                .post("https://qa-scooter.praktikum-services.ru/api/v1/courier/login")
-                .as(CouriersResponse.class);
-
-        return response.getId();
+    @Step("Проверка система вернёт ошибку, если неправильно указать логин или пароль, не указано логин или пароль")
+    public String getMessageResponseOfLoginCourier () {
+        return response.as(CouriersResponse.class).getMessage();
     }
 
 }
