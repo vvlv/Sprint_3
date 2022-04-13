@@ -36,12 +36,12 @@ Couriers courier = new Couriers();
 
     //Тут возвращается 201 хотя по логике имя дожно быть обязательны и обратного не указано в документации
     // в слаке есть обсуждение https://yandex-students.slack.com/archives/C02QSTBQJE4/p1647706761184229
-/*    @Test
+    @Test
     @Description("Метод создает курьера без имени в запросе")
     public void courierCreateNoName () {
         courier.courierNewBodyDataGenerateNotName();
         Assert.assertEquals(400,courier.getResponseStatusCode());
-    }*/
+    }
     @Test
     public void courierCreateNotNewLogin () {
         courier.courierNewBodyDataGenerateNotNew();
